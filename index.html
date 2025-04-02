@@ -5,13 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Сова-кликер</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="./editionatText.js"></script>
 
     <style>
       body {
+        overflow-y: hidden !important;
         text-align: center;
         font-family: Arial, sans-serif;
         background-color: #0d0d0d;
         color: #00ffcc;
+        margin: 0;
+      }
+
+      #text {
+        font-size: 24px;
+        font-weight: bold;
+        transition: opacity 10s ease-in-out; /* Плавный переход */
       }
       .owl {
         width: 80vw; /* 80% ширины экрана */
@@ -19,12 +28,9 @@
         height: auto;
         cursor: pointer;
         transition: transform 0.1s, filter 0.3s;
-        filter: drop-shadow(0 0 15px #00ffcc);
+        filter: drop-shadow(0 0 45px #00ffcc);
       }
       .owl-img {
-        width: 20vw; /* 80% ширины экрана */
-        max-width: 600px; /* Максимальный размер */
-        height: auto;
         cursor: pointer;
         transition: transform 0.1s, filter 0.3s;
         filter: drop-shadow(0 0 15px #00ffcc);
@@ -54,13 +60,10 @@
         box-shadow: 0 0 20px #009977;
       }
       .hidden {
-        display: none;
+        display: none !important;
       }
       .start-screen {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        overflow-y: hidden !important;
         background: #222;
         padding: 20px;
         border-radius: 10px;
@@ -179,6 +182,15 @@
         text-shadow: 0 0 15px #ff4500, 0 0 30px #ffcc00;
       }
 
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
+      }
+
       @keyframes floatUp {
         0% {
           transform: translateY(0) scale(1);
@@ -195,6 +207,7 @@
       }
 
       .navbar {
+        filter: drop-shadow(0 0 45px #00ffcc);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -218,10 +231,6 @@
         transition: 0.3s;
       }
 
-      .nav-button:hover {
-        background: #009977;
-      }
-
       .nav-button {
         font-size: 24px; /* Увеличен размер иконок */
         width: 50px;
@@ -238,43 +247,312 @@
         box-shadow: 0 0 10px #00ffcc;
       }
 
-      .nav-button:hover {
-        background: #009977;
-        box-shadow: 0 0 15px #009977;
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .modal-content {
+        background-color: #222;
+        /* margin: 10% auto; */
+        padding: 20px;
+        border-radius: 10px;
+        width: 80vw;
+        box-shadow: 0 0 15px #00ffcc;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover {
+        color: white;
+      }
+      .leaderboard ol {
+        padding: 0;
+        list-style: none;
+      }
+      .leaderboard li {
+        font-size: 18px;
+        padding: 5px 0;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .modal-content .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close:hover {
+        color: white;
+      }
+      .roadmap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .roadmap-stage {
+        background: #444;
+        padding: 15px;
+        margin: 10px;
+        border-radius: 8px;
+        width: 80%;
+        box-shadow: 0 0 10px #00ffcc;
+      }
+      .roadmap-stage h3 {
+        color: #ffcc00;
+      }
+      .roadmap ul {
+        padding: 0;
+        list-style: none;
+      }
+      .roadmap li {
+        font-size: 18px;
+        padding: 5px 0;
+      }
+      .nav-button {
+        background: none;
+        filter: drop-shadow(0 0 20px #00ffcc);
+        font-size: 39px;
+        font-size: 24px;
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* background: #00ffcc; */
+        color: #0d0d0d;
+        border: none;
+        border-radius: 0%;
+        cursor: pointer;
+        transition: 0.3s;
+        font-size: 40px;
+        /* box-shadow: 0 0 10px #00ffcc; */
+        filter: drop-shadow(0 0 20px #00ffcc) !important;
+        margin: 10px;
+      }
+
+      .modal-content {
+        background-color: #222;
+        /* margin: 10% auto; */
+        /* padding: 20px; */
+        border-radius: 10px;
+        width: 100vw;
+        padding: -6px;
+        box-shadow: 0 0 15px #00ffcc;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 0 !important;
       }
     </style>
   </head>
   <body>
-    <div id="startScreen" class="start-screen">
-      <h2>Введите имя</h2>
-      <input type="text" id="playerName" placeholder="Ваше имя" />
-      <h3>Выберите сову</h3>
-      <div style="display: flex; align-items: center">
-        <span class="arrow unselectable" onclick="prevOwl()">&#9664;</span>
-        <img id="selectedOwl" src="/img/owl_1.jpg" class="owl-img" />
-        <span class="arrow unselectable" onclick="nextOwl()">&#9654;</span>
+    <div
+      style="
+        height: 100vh;
+        overflow-y: hidden;
+        background-image: url('/img/prevetstvie1.jpg');
+      "
+      id="stepper"
+      class="stepper">
+      <div
+        id="text"
+        style="
+          position: fixed;
+          bottom: 0;
+          /* padding-top: 60vh; */
+          display: flex;
+          flex-direction: column;
+          align-items: unset;
+          justify-content: end;
+
+          display: flex;
+          flex-direction: column;
+          align-items: unset;
+          justify-content: end;
+        "
+        class="stepper-content">
+        <h2
+          style="
+            display: flex;
+            color: ghostwhite;
+            background: black;
+            min-height: 10vh;
+            text-align: center;
+            align-items: center;
+            min-height: 10vh;
+            justify-content: center;
+          "
+          id="step-title">
+          Добро пожаловать в Owl Clicker!
+        </h2>
+        <p style="color: azure; font-size: larger" id="step-text">
+          Кликай на сову, чтобы зарабатывать очки.
+        </p>
+
+        <button class="button" onclick="nextStep()">Далее</button>
       </div>
-      <p id="owlDescription">Описание совы 1</p>
-      <br />
-      <button class="button" onclick="startGame()">Начать</button>
     </div>
 
-    <div class="hidden" id="gameScreen">
+    <div
+      id="startScreen"
+      style="
+        display: flex;
+        height: 100vh;
+        padding: 0; /* padding-top: 20px; */
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+      "
+      class="start-screen hidden">
+      <h2>Введите имя</h2>
+      <input type="text" id="playerName" placeholder="Ваше имя" />
+      <p id="warningMessage" style="color: red; display: none">Введите имя!</p>
+      <h3>Выберите сову</h3>
+      <div style="display: flex; align-items: center; height: 35vh">
+        <span class="arrow unselectable" onclick="prevOwl()">&#9664;</span>
+        <img
+          style="height: 35vh; filter: drop-shadow(0 0 45px #00ffcc)"
+          id="selectedOwl"
+          src="/img/owl_1.jpg"
+          class="owl-img" />
+        <span class="arrow unselectable" onclick="nextOwl()">&#9654;</span>
+      </div>
+      <div
+        style="
+          margin-top: 20px;
+          padding: 10px;
+          font-size: 18px;
+          border: 2px solid #00ffcc;
+          border-radius: 5px;
+          background-color: #0d0d0d;
+          color: #00ffcc;
+          text-align: center;
+          width: 80%;
+          box-shadow: 0 0 10px #00ffcc;
+          margin-bottom: 15px;
+          width: auto;
+        ">
+        <h3 id="owl-name-description">Снапер-3000</h3>
+        <h4 id="owl-description-1">Профессиональный бездействователь</h4>
+        <p id="owl-description-2" style="text-align: left">
+          Всегда на страже. Но в основном — во сне. Если спит с открытыми
+          глазами — это баг или фича?
+        </p>
+      </div>
+
+      <br />
+      <button
+        style="width: -webkit-fill-available"
+        class="button"
+        onclick="startGame()">
+        Начать
+      </button>
+    </div>
+
+    <div id="leaderboardModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="hideLeaderboard()">&times;</span>
+        <h2>Таблица лидеров</h2>
+        <div class="leaderboard">
+          <ol id="leaderboardList"></ol>
+        </div>
+      </div>
+    </div>
+
+    <div id="roadmapModal" class="modal">
+      <div class="modal-content">
+        <span
+          style="padding-right: 20px; padding-top: 20px"
+          class="close"
+          onclick="hideRoadmap()"
+          >&times;</span
+        >
+        <h2>Роадмап игры</h2>
+        <div class="roadmap">
+          <div class="roadmap-stage">
+            <h3>Stage 1 (1 месяц)</h3>
+            <ul>
+              <li>Запуск игры в Telegram</li>
+              <li>Исправление багов и оптимизация</li>
+              <li>Добавление новых эффектов и анимаций</li>
+            </ul>
+          </div>
+          <div class="roadmap-stage">
+            <h3>Stage 2 (1 месяц)</h3>
+            <ul>
+              <li>Реализация системы квестов</li>
+              <li>Добавление новых видов сов</li>
+              <li>Введение внутриигровых бонусов</li>
+              <li>Улучшение интерфейса</li>
+            </ul>
+          </div>
+          <div class="roadmap-stage">
+            <h3>Stage 3 (1 месяц)</h3>
+            <ul>
+              <li>Глобальная таблица лидеров</li>
+              <li>Система достижений</li>
+              <li>Режим соревнований между игроками</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      style="
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow-y: hidden;
+        overflow-x: hidden;
+      "
+      class="hidden"
+      id="gameScreen">
+      <canvas id="magicCanvas"></canvas>
       <div class="navbar">
-        <img src="/img/logo.png" alt="Логотип" class="logo" />
         <button class="nav-button" onclick="showLeaderboard()">🏆</button>
-        <button class="nav-button" onclick="showStats()">📊</button>
+        <button class="nav-button" onclick="showRoadmap()">🗺️</button>
         <button class="nav-button" onclick="toggleSound()">🔊</button>
       </div>
 
-      <h2 id="greeting" class="hidden">Привет,</h2>
-      <h3 id="score">Очки: 0</h3>
-      <img id="gameOwl" src="/img/owl_1.jpg" class="owl" />
+      <h1 id="greeting" class="hidden">Привет,</h1>
+      <h2 id="score">Очки: 0</h2>
+      <img
+        id="gameOwl"
+        style="width: -webkit-fill-available"
+        src="/img/owl_1.jpg"
+        class="owl unselectable" />
       <br />
       <!-- <button class="button" onclick="buyAutoClicker()">
         Автокликер (10 000 очков)
       </button> -->
-      <button class="button" id="increase" onclick="buyUpgrade()">
+      <button
+        style="width: -webkit-fill-available; padding: 30px"
+        class="button"
+        id="increase"
+        onclick="buyUpgrade()">
         Улучшить клик (200 очков)
       </button>
       <p id="autoclickerTimer" class="hidden">Автоклик активен: 30:00</p>
@@ -302,26 +580,22 @@
         "/img/owl_5.jpg",
         "/img/owl_6.jpg",
         "/img/owl_7.jpg",
-        "/img/owl_8.jpg",
       ];
-      let owlDescriptions = [
-        "Описание совы 1",
-        "Описание совы 2",
-        "Описание совы 3",
-        "Описание совы 4",
-        "Описание совы 5",
-        "Описание совы 6",
-        "Описание совы 7",
-        "Описание совы 8",
-      ];
+
       let currentOwlIndex = 0;
       let score = 0;
       let autoClickerActive = false;
 
       function updateOwlDisplay() {
         document.getElementById("selectedOwl").src = owlImages[currentOwlIndex];
-        document.getElementById("owlDescription").textContent =
-          owlDescriptions[currentOwlIndex];
+        document.getElementById("owl-name-description").textContent =
+          window.owlName[currentOwlIndex];
+
+        document.getElementById("owl-description-1").textContent =
+          window.owlDescription1[currentOwlIndex];
+
+        document.getElementById("owl-description-2").textContent =
+          window.owlDescription2[currentOwlIndex];
       }
 
       function prevOwl() {
@@ -338,7 +612,9 @@
       function startGame() {
         let playerName = document.getElementById("playerName").value;
         if (playerName.trim() === "") {
-          playerName = "Игрок";
+          let warningMessage = document.getElementById("warningMessage");
+          warningMessage.style.display = "block"; // Показываем предупреждение
+          return;
         }
 
         document.getElementById("greeting").textContent =
@@ -439,6 +715,136 @@
         let soundButton = document.querySelector(".nav-button:last-child");
         soundButton.textContent = soundEnabled ? "🔊" : "🔇";
       }
+
+      let leaderboard = [
+        { name: "Игрок1", score: 15000 },
+        { name: "Игрок2", score: 12000 },
+        { name: "Игрок3", score: 11000 },
+        { name: "Игрок4", score: 9000 },
+        { name: "Игрок5", score: 8500 },
+        { name: "Игрок6", score: 7000 },
+        { name: "Игрок7", score: 6500 },
+        { name: "Игрок8", score: 5000 },
+        { name: "Игрок9", score: 4000 },
+        { name: "Игрок10", score: 3000 },
+      ];
+
+      function showLeaderboard() {
+        document.getElementById("leaderboardModal").style.display = "block";
+        updateLeaderboard();
+      }
+
+      function hideLeaderboard() {
+        document.getElementById("leaderboardModal").style.display = "none";
+      }
+
+      function updateLeaderboard() {
+        let list = document.getElementById("leaderboardList");
+        list.innerHTML = "";
+        leaderboard.forEach((player, index) => {
+          let listItem = document.createElement("li");
+          listItem.textContent = `${index + 1}. ${player.name} - ${
+            player.score
+          }`;
+          list.appendChild(listItem);
+        });
+      }
+
+      function showRoadmap() {
+        document.getElementById("roadmapModal").style.display = "block";
+      }
+
+      function hideRoadmap() {
+        document.getElementById("roadmapModal").style.display = "none";
+      }
+
+      // STEPPER
+
+      let step = 0;
+      const steps = [
+        {
+          title: "Добро пожаловать в Owl Clicker!",
+          text: "Кликай на сову, чтобы зарабатывать очки.",
+        },
+        {
+          title: "Улучшай свою сову!",
+          text: "Используй очки, чтобы улучшать скорость кликов.",
+        },
+        {
+          title: "Соревнуйся с друзьями!",
+          text: "Попади в топ игроков и стань лучшим!",
+        },
+      ];
+
+      function nextStep() {
+        step++;
+        if (step < steps.length) {
+          document.getElementById("step-title").innerText = steps[step].title;
+          document.getElementById("step-text").innerText = steps[step].text;
+        } else {
+          document.getElementById("stepper").style.display = "none";
+          document.getElementById("startScreen").classList.remove("hidden");
+        }
+      }
+    </script>
+
+    <script>
+      const canvas = document.getElementById("magicCanvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let particles = [];
+      const numParticles = 50; // Количество падающих элементов
+
+      for (let i = 0; i < numParticles; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 6 + 2, // Размеры перьев и звезд
+          speedY: Math.random() * 2 + 1,
+          opacity: Math.random() * 0.5 + 0.3,
+          type: Math.random() > 0.5 ? "feather" : "star", // Разные типы объектов
+        });
+      }
+
+      function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((p) => {
+          ctx.globalAlpha = p.opacity;
+          ctx.fillStyle = p.type === "feather" ? "#ccccff" : "#ffd700";
+
+          if (p.type === "feather") {
+            ctx.beginPath();
+            ctx.ellipse(
+              p.x,
+              p.y,
+              p.size * 1.5,
+              p.size / 2,
+              Math.PI / 4,
+              0,
+              Math.PI * 2
+            );
+          } else {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+          }
+
+          ctx.fill();
+
+          p.y += p.speedY;
+          if (p.y > canvas.height) {
+            p.y = 0;
+            p.x = Math.random() * canvas.width;
+          }
+        });
+
+        requestAnimationFrame(drawParticles);
+      }
+
+      drawParticles();
     </script>
   </body>
 </html>
