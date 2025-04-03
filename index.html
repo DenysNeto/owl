@@ -212,7 +212,6 @@
         justify-content: space-between;
         align-items: center;
         background: #222;
-        padding: 10px 20px;
         box-shadow: 0 0 10px #00ffcc;
       }
 
@@ -335,8 +334,8 @@
         filter: drop-shadow(0 0 20px #00ffcc);
         font-size: 39px;
         font-size: 24px;
-        width: 100px;
-        height: 100px;
+        width: 50px;
+        height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -346,10 +345,11 @@
         border-radius: 0%;
         cursor: pointer;
         transition: 0.3s;
-        font-size: 40px;
-        /* box-shadow: 0 0 10px #00ffcc; */
+        font-size: 25px;
+        box-shadow: 0 0 10px #00ffcc;
         filter: drop-shadow(0 0 20px #00ffcc) !important;
         margin: 10px;
+        border-radius: 55px;
       }
 
       .modal-content {
@@ -429,10 +429,10 @@
       <input type="text" id="playerName" placeholder="Ваше имя" />
       <p id="warningMessage" style="color: red; display: none">Введите имя!</p>
       <h3>Выберите сову</h3>
-      <div style="display: flex; align-items: center; height: 35vh">
+      <div style="display: flex; align-items: center; height: 25vh">
         <span class="arrow unselectable" onclick="prevOwl()">&#9664;</span>
         <img
-          style="height: 35vh; filter: drop-shadow(0 0 45px #00ffcc)"
+          style="height: 25vh; filter: drop-shadow(0 0 45px #00ffcc)"
           id="selectedOwl"
           src="/img/owl_1.jpg"
           class="owl-img" />
@@ -440,9 +440,7 @@
       </div>
       <div
         style="
-          margin-top: 20px;
           padding: 10px;
-          font-size: 18px;
           border: 2px solid #00ffcc;
           border-radius: 5px;
           background-color: #0d0d0d;
@@ -450,7 +448,6 @@
           text-align: center;
           width: 80%;
           box-shadow: 0 0 10px #00ffcc;
-          margin-bottom: 15px;
           width: auto;
         ">
         <h3 id="owl-name-description">Снапер-3000</h3>
@@ -537,7 +534,7 @@
         <button class="nav-button" onclick="toggleSound()">🔊</button>
       </div>
 
-      <h1 id="greeting" class="hidden">Привет,</h1>
+      <h1 id="greeting" style="margin: 0" class="hidden">Привет,</h1>
       <h2 id="score">Очки: 0</h2>
       <img
         id="gameOwl"
@@ -548,8 +545,9 @@
       <!-- <button class="button" onclick="buyAutoClicker()">
         Автокликер (10 000 очков)
       </button> -->
+      <span>Кликай на сову и зарабатывай очки</span>
       <button
-        style="width: -webkit-fill-available; padding: 30px"
+        style="width: -webkit-fill-available; padding: 20px"
         class="button"
         id="increase"
         onclick="buyUpgrade()">
@@ -557,12 +555,20 @@
       </button>
       <p id="autoclickerTimer" class="hidden">Автоклик активен: 30:00</p>
 
-      <audio
-        id="clickSound"
-        src="https://www.fesliyanstudios.com/play-mp3/4386"></audio>
+      <audio id="clickSound" src="/img/music.mp3" loop play></audio>
     </div>
 
     <script>
+      const music = document.getElementById("clickSound");
+
+      // Автозапуск музыки при загрузке страницы
+      window.addEventListener("load", () => {
+        music.volume = 0.5; // Громкость 50%
+        music
+          .play()
+          .catch((e) => console.log("Автовоспроизведение заблокировано"));
+      });
+
       document.addEventListener("DOMContentLoaded", function () {
         let tg = window.Telegram.WebApp;
         tg.expand();
@@ -710,9 +716,14 @@
       }
 
       function toggleSound() {
-        soundEnabled = !soundEnabled;
         let soundButton = document.querySelector(".nav-button:last-child");
-        soundButton.textContent = soundEnabled ? "🔊" : "🔇";
+        if (music.paused) {
+          music.play();
+          soundButton.textContent = "🔊";
+        } else {
+          music.pause();
+          soundButton.textContent = "🔇";
+        }
       }
 
       let leaderboard = [
